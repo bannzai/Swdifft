@@ -12,43 +12,23 @@ public var endRHSMark = "***"
 
 public typealias Content = String
 
-internal struct EditGraph {
-    typealias List = ContiguousArray<Int>
-    private(set) var graph: ContiguousArray<List>
+public func diff(_ lhs: Content, _ rhs: Content, formatter: Formatter = DefaultFomratter()) -> [Diff] {
+    return process(lhs: lhs, rhs: rhs, formatter: formatter)
+}
 
-    init(horizontal x: Content, vertical y: Content) {
-        var column = List(repeating: 0, count: y.count + 1)
-        column.reserveCapacity(column.count)
-        
-        graph = ContiguousArray<List>(repeating: column, count: x.count + 1)
-        graph.reserveCapacity(graph.count)
-
-        configure(horizontal: x, vertical: y)
-    }
-    
-    private mutating func configure(
-        horizontal x: Content,
-        vertical y: Content
-        ) {
-        if x.isEmpty || y.isEmpty {
-            fatalError()
-        }
-        
-        for xIndex in (1..<graph.indices.endIndex) {
-            for yIndex in (1..<graph[xIndex].indices.endIndex) {
-                let addition = x[xIndex - 1] == y[yIndex - 1] ? 1 : 0
-                graph[xIndex][yIndex] = max(
-                    graph[xIndex - 1][yIndex - 1] + addition,
-                    graph[xIndex - 1][yIndex],
-                    graph[xIndex][yIndex - 1]
-                )
+private func longestCommonSubsequence(lhs: Content, rhs: Content) -> Content {
+    var lcs = ""
+    let maxIndex = min(lhs.count, rhs.count) - 1
+    var storedStartIndex = 0
+    for i in (0...maxIndex) {
+        for j in (storedStartIndex...maxIndex) {
+            if lcs[i] == rhs[j] {
+                storedStartIndex = j
+                lcs.append(rhs[storedStartIndex])
             }
         }
     }
-}
-
-public func diff(_ lhs: Content, _ rhs: Content, formatter: Formatter = DefaultFomratter()) -> [Diff] {
-    return process(lhs: lhs, rhs: rhs, formatter: formatter)
+    return lcs
 }
 
 private func process(lhs: Content, rhs: Content, formatter: Formatter) -> [Diff] {
