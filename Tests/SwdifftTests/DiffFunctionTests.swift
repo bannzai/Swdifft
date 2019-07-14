@@ -100,5 +100,24 @@ Hello world 2
             )
         })
     }
+    
+    func testLongestCommonSubsequence() {
+        XCTContext.runActivity(named: "When same argument", block: { _ in
+            let result = longestCommonSubsequence(lhs: "ABCDEFG", rhs: "ABCDEFG")
+            XCTAssertEqual(result, "ABCDEFG")
+        })
+        XCTContext.runActivity(named: "When lhs > rhs", block: { _ in
+            let result = longestCommonSubsequence(lhs: "ABCDEFGHIJ", rhs: "ABCDEFG")
+            XCTAssertEqual(result, "ABCDEFG")
+        })
+        XCTContext.runActivity(named: "When lhs < rhs", block: { _ in
+            let result = longestCommonSubsequence(lhs: "ABCDEFG", rhs: "ABCDEFGHIJ")
+            XCTAssertEqual(result, "ABCDEFG")
+        })
+        XCTContext.runActivity(named: "Expected to get ACF ", block: { _ in
+            let result = longestCommonSubsequence(lhs: "ABCDEFG", rhs: "BEACGF")
+            XCTAssertEqual(result, "ACF")
+        })
+    }
 
 }
