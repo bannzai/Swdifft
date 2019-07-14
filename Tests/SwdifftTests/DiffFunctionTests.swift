@@ -24,6 +24,8 @@ class DiffFunctionTests: XCTestCase {
             XCTAssertEqual(
                 result.description,
                 """
+Hello world
+Hello
 """
             )
         })
@@ -79,6 +81,17 @@ Hello world 2
             let result = diff(
                 "Hello world bannzai",
                 "Holly shit bannnzai"
+            )
+            XCTAssertEqual(
+                result.description,
+                """
+"""
+            )
+        })
+        XCTContext.runActivity(named: "When all character are difference", block: { _ in
+            let result = diff(
+                "スターください",
+                "Give me star"
             )
             XCTAssertEqual(
                 result.description,
