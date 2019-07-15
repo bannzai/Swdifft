@@ -4,11 +4,11 @@ struct Swdifft {
 
 public typealias DefaultFomratter = DiffingFormatter
 
-public var beginLHSMark = "###"
-public var endLHSMark = "###"
+public var beginLHSMark = "`"
+public var endLHSMark = "`"
 
-public var beginRHSMark = "***"
-public var endRHSMark = "***"
+public var beginRHSMark = "*"
+public var endRHSMark = "*"
 
 public typealias Content = String
 
