@@ -14,10 +14,7 @@ public protocol Formatter {
 public struct DiffingFormatter: Formatter {
     public init() { }
     public func format(lhs: String, rhs: String) -> String {
-        return """
-        \(lhs)
-        \(rhs)
-"""
+        return "\(lhs)\n\(rhs)"
     }
 }
 

@@ -3,7 +3,7 @@ public typealias Content = String
 
 public func printDiff(_ lhs: Content, _ rhs: Content, formatter: Formatter = DefaultFomratter()) {
     let (l, r) = diff(lhs, rhs)
-    print(formatDiff(l, r))
+    print(formatDiff(l, r, formatter: formatter))
 }
 
 public func formatDiff(_ lhs: Content, _ rhs: Content, formatter: Formatter = DefaultFomratter()) -> String {

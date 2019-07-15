@@ -2,6 +2,13 @@ import XCTest
 @testable import Swdifft
 
 final class SwdifftTests: XCTestCase {
+    func testFormatDiff() {
+        let result = formatDiff("ABCDEFG", "BEACGF")
+        let l = "A\(beginLHSMark)B\(endLHSMark)C\(beginLHSMark)DE\(endLHSMark)F\(beginLHSMark)G\(endLHSMark)"
+        let r = "\(beginRHSMark)BE\(endRHSMark)AC\(beginRHSMark)G\(endRHSMark)F"
+        XCTAssertEqual(result, "\(l)\n\(r)")
+    }
+    
     func testDiff() {
         XCTContext.runActivity(named: "When same argument", block: { _ in
             let result = diff("ABCDEFG", "ABCDEFG")
@@ -18,7 +25,7 @@ final class SwdifftTests: XCTestCase {
             XCTAssertEqual(result.lhs, "ABCDEFG")
             XCTAssertEqual(result.rhs, "ABCDEFG\(beginRHSMark)HIJ\(endRHSMark)")
         })
-        XCTContext.runActivity(named: "Expected to get ACF ", block: { _ in
+        XCTContext.runActivity(named: "Longest Common Subsequence is ACF", block: { _ in
             let result = diff("ABCDEFG", "BEACGF")
             XCTAssertEqual(result.lhs, "A\(beginLHSMark)B\(endLHSMark)C\(beginLHSMark)DE\(endLHSMark)F\(beginLHSMark)G\(endLHSMark)")
             XCTAssertEqual(result.rhs, "\(beginRHSMark)BE\(endRHSMark)AC\(beginRHSMark)G\(endRHSMark)F")
