@@ -17,90 +17,31 @@ class DiffFunctionTests: XCTestCase {
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
-
+    
     func testDiff() {
-        XCTContext.runActivity(named: "When rhs is insufficient", block: { _ in
-            let result = diff("Hello world", "Hello")
-            XCTAssertEqual(
-                result.description,
-                """
-Hello world
-Hello
-"""
-            )
+        XCTContext.runActivity(named: "When same argument", block: { _ in
+            let result = diff("ABCDEFG", "ABCDEFG")
+            XCTAssertEqual(result.lhs, "ABCDEFG")
+            XCTAssertEqual(result.rhs, "ABCDEFG")
         })
-        XCTContext.runActivity(named: "When lhs is insufficient", block: { _ in
-            let result = diff("Hello", "Hello world")
-            XCTAssertEqual(
-                result.description,
-                """
-"""
-            )
+        XCTContext.runActivity(named: "When lhs > rhs", block: { _ in
+            let result = diff("ABCDEFGHIJ", "ABCDEFG")
+            XCTAssertEqual(result.lhs, "ABCDEFG\(beginLHSMark)HIJ\(endLHSMark)")
+            XCTAssertEqual(result.rhs, "ABCDEFG")
         })
-        XCTContext.runActivity(named: "When lhs and rhs same length but difference", block: { _ in
-            let result = diff("Hello", "Hello world")
-            XCTAssertEqual(
-                result.description,
-                """
-"""
-            )
+        XCTContext.runActivity(named: "When lhs < rhs", block: { _ in
+            let result = diff("ABCDEFG", "ABCDEFGHIJ")
+            XCTAssertEqual(result.lhs, "ABCDEFG")
+            XCTAssertEqual(result.rhs, "ABCDEFG\(beginRHSMark)HIJ\(endRHSMark)")
         })
-        XCTContext.runActivity(named: "When rhs is insufficient for line", block: { _ in
-            let result = diff(
-                """
-Hello world 1
-Hello world 2
-""",
-                """
-Hello world 2
-"""
-            )
-            XCTAssertEqual(
-                result.description,
-                """
-"""
-            )
-        })
-        XCTContext.runActivity(named: "When lhs is insufficient for line", block: { _ in
-            let result = diff(
-                """
-Hello world 2
-""",
-                """
-Hello world 1
-Hello world 2
-"""
-            )
-            XCTAssertEqual(
-                result.description,
-                """
-"""
-            )
-        })
-        XCTContext.runActivity(named: "When it is exists many difference between lhs and rhs", block: { _ in
-            let result = diff(
-                "Hello world bannzai",
-                "Holly shit bannnzai"
-            )
-            XCTAssertEqual(
-                result.description,
-                """
-"""
-            )
-        })
-        XCTContext.runActivity(named: "When all character are difference", block: { _ in
-            let result = diff(
-                "スターください",
-                "Give me star"
-            )
-            XCTAssertEqual(
-                result.description,
-                """
-"""
-            )
+        XCTContext.runActivity(named: "Expected to get ACF ", block: { _ in
+            let result = diff("ABCDEFG", "BEACGF")
+            XCTAssertEqual(result.lhs, "A\(beginLHSMark)B\(endLHSMark)C\(beginLHSMark)DE\(endLHSMark)F\(beginLHSMark)G\(endLHSMark)")
+            XCTAssertEqual(result.rhs, "\(beginRHSMark)BE\(endRHSMark)AC\(beginRHSMark)G\(endRHSMark)F")
         })
     }
-    
+
+
     func testLongestCommonSubsequence() {
         XCTContext.runActivity(named: "When same argument", block: { _ in
             let result = longestCommonSubsequence(lhs: "ABCDEFG", rhs: "ABCDEFG")

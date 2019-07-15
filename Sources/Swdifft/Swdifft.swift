@@ -41,59 +41,62 @@ private func process(lhs: Content, rhs: Content, lcs: Content, formatter: Format
     let rhsLength = rhs.count
     let maxIndex = min(lhsLength, rhsLength) - 1
     
-    var rhsEndedIndex = 0
-    
     struct Result {
         var stack: String = ""
         var beginDiff: Bool = false
     }
 
     func run(target: Content, commonCharacter: Character, diffWords: (begin: String, end: String)) -> Result {
-        var endedIndex = 0
         var result = Result()
         
-        for index in (endedIndex..<min(target.count, maxIndex)) {
+        LOOP:
+        for index in (0..<min(target.count, maxIndex)) {
             switch commonCharacter == target[index] {
             case false:
                 switch result.beginDiff {
                 case false:
-                    result.stack.append(contentsOf: diffWords.end)
+                    result.stack.append(contentsOf: diffWords.begin)
                     result.stack.append(target[index])
                     result.beginDiff = true
                 case true:
                     result.stack.append(target[index])
                 }
             case true:
-                endedIndex = index
-                break
+                if result.beginDiff {
+                    result.stack.append(contentsOf: diffWords.end)
+                    result.beginDiff = false
+                }
+                result.stack.append(target[index])
+                break LOOP
             }
-            if result.beginDiff {
-                result.stack.append(contentsOf: diffWords.begin)
-                result.beginDiff = false
-            }
+        }
+        if result.beginDiff {
+            result.stack.append(contentsOf: diffWords.end)
+            result.beginDiff = false
         }
         return result
     }
 
     let (lhsResult, rhsResult) = lcs.reduce((lhsResult: "", rhsResult: "")) { (result, commonCharacter) in
+        let lTarget = lhs.suffix(from: result.0.replacingOccurrences(of: beginLHSMark, with: "").replacingOccurrences(of: endLHSMark, with: "").count)
+        let rTarget = rhs.suffix(from: result.1.replacingOccurrences(of: beginRHSMark, with: "").replacingOccurrences(of: endRHSMark, with: "").count)
         return (
-            result.0 + run(target: lhs, commonCharacter: commonCharacter, diffWords: (begin: beginLHSMark, end: endLHSMark)).stack,
-            result.1 + run(target: rhs, commonCharacter: commonCharacter, diffWords: (begin: beginRHSMark, end: endRHSMark)).stack
+            result.0 + run(target: lTarget, commonCharacter: commonCharacter, diffWords: (begin: beginLHSMark, end: endLHSMark)).stack,
+            result.1 + run(target: rTarget, commonCharacter: commonCharacter, diffWords: (begin: beginRHSMark, end: endRHSMark)).stack
+            
         )
     }
     
     if lhsLength == rhsLength {
         return (lhs: lhsResult, rhs: rhsResult)
     }
+    
+    let from = maxIndex + 1
     switch (lhsLength > rhsLength) {
-    case false:
-        let startIndex = lhs.index(lhs.startIndex, offsetBy: maxIndex)
-        let endIndex = lhs.index(startIndex, offsetBy: lhsLength - maxIndex)
-        return (lhs: lhsResult + lhs[startIndex..<endIndex], rhs: rhsResult)
     case true:
-        let startIndex = lhs.index(lhs.startIndex, offsetBy: maxIndex)
-        let endIndex = lhs.index(startIndex, offsetBy: lhsLength - maxIndex)
-        return (lhs: lhsResult, rhs: rhsResult + rhs[startIndex..<endIndex])
+        return (lhs: lhsResult + beginLHSMark + lhs.suffix(from: from) + endLHSMark, rhs: rhsResult)
+    case false:
+        return (lhs: lhsResult, rhs: rhsResult + beginRHSMark + rhs.suffix(from: from) + endRHSMark)
     }
 }
 
@@ -107,6 +110,9 @@ internal extension String {
     }
     func prefix(offset: Int) -> String {
         return String(prefix(upTo: index(startIndex, offsetBy: offset)))
+    }
+    func suffix(from offset: Int) -> String {
+        return String(suffix(from: index(startIndex, offsetBy: offset)))
     }
 }
 
