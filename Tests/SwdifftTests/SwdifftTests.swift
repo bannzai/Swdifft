@@ -32,6 +32,17 @@ final class SwdifftTests: XCTestCase {
         })
     }
     
+    func testMarkChange() {
+        beginLHSMark = "%"
+        endLHSMark = "%"
+        beginRHSMark = "&"
+        endRHSMark = "&"
+        let result = formatDiff("ABCDEFG", "BEACGF")
+        let l = "A%B%C%DE%F%G%"
+        let r = "&BE&AC&G&F"
+        XCTAssertEqual(result, "\(l)\n\(r)")
+    }
+    
     
     func testLongestCommonSubsequence() {
         XCTContext.runActivity(named: "When same argument", block: { _ in
