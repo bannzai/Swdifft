@@ -12,12 +12,21 @@ public var endRHSMark = "*"
 
 public typealias Content = String
 
-public func diff(_ lhs: Content, _ rhs: Content, formatter: Formatter = DefaultFomratter()) -> (lhs: Content, rhs: Content) {
+public func printDiff(_ lhs: Content, _ rhs: Content, formatter: Formatter = DefaultFomratter()) {
+    let (l, r) = diff(lhs, rhs)
+    print(formatDiff(l, r))
+}
+
+public func formatDiff(_ lhs: Content, _ rhs: Content, formatter: Formatter = DefaultFomratter()) -> String {
+    let (l, r) = diff(lhs, rhs)
+    return formatter.format(lhs: l, rhs: r)
+}
+
+public func diff(_ lhs: Content, _ rhs: Content) -> (lhs: Content, rhs: Content) {
     return process(
         lhs: lhs,
         rhs: rhs,
-        lcs: longestCommonSubsequence(lhs: lhs, rhs: rhs),
-        formatter: formatter
+        lcs: longestCommonSubsequence(lhs: lhs, rhs: rhs)
     )
 }
 
@@ -36,7 +45,7 @@ internal func longestCommonSubsequence(lhs: Content, rhs: Content) -> Content {
     return lcs
 }
 
-private func process(lhs: Content, rhs: Content, lcs: Content, formatter: Formatter) -> (lhs: Content, rhs: Content) {
+private func process(lhs: Content, rhs: Content, lcs: Content) -> (lhs: Content, rhs: Content) {
     let lhsLength = lhs.count
     let rhsLength = rhs.count
     let maxIndex = min(lhsLength, rhsLength) - 1
