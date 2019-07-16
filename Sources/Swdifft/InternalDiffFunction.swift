@@ -10,18 +10,19 @@ import Foundation
 internal func process(lhs: Content, rhs: Content, lcs: Content) -> (lhs: Content, rhs: Content) {
     let lhsLength = lhs.count
     let rhsLength = rhs.count
-    let maxIndex = min(lhsLength, rhsLength) - 1
+    let maxCount = min(lhsLength, rhsLength)
     
     struct Result {
         var stack: String = ""
         var beginDiff: Bool = false
     }
     
-    func extract(target: Content, commonCharacter: Character, diffWords: (begin: String, end: String)) -> Result {
+    func extract(target: Content, commonCharacter: Character, diffWords: (begin: String, end: String), beginIndex step: inout Int) -> Result {
         var result = Result()
         
         LOOP:
-            for index in (0..<min(target.count, maxIndex)) {
+            for index in (step..<min(target.count, maxCount)) {
+                step += 1
                 switch commonCharacter == target[index] {
                 case false:
                     switch result.beginDiff {
@@ -48,12 +49,12 @@ internal func process(lhs: Content, rhs: Content, lcs: Content) -> (lhs: Content
         return result
     }
     
+    var lhsBeginIndex = 0
+    var rhsBeginIndex = 0
     let (lhsResult, rhsResult) = lcs.reduce((lhsResult: "", rhsResult: "")) { (result, commonCharacter) in
-        let lTarget = lhs.suffix(from: result.0.replacingOccurrences(of: beginLHSMark, with: "").replacingOccurrences(of: endLHSMark, with: "").count)
-        let rTarget = rhs.suffix(from: result.1.replacingOccurrences(of: beginRHSMark, with: "").replacingOccurrences(of: endRHSMark, with: "").count)
         return (
-            result.0 + extract(target: lTarget, commonCharacter: commonCharacter, diffWords: (begin: beginLHSMark, end: endLHSMark)).stack,
-            result.1 + extract(target: rTarget, commonCharacter: commonCharacter, diffWords: (begin: beginRHSMark, end: endRHSMark)).stack
+            result.0 + extract(target: lhs, commonCharacter: commonCharacter, diffWords: (begin: beginLHSMark, end: endLHSMark), beginIndex: &lhsBeginIndex).stack,
+            result.1 + extract(target: rhs, commonCharacter: commonCharacter, diffWords: (begin: beginRHSMark, end: endRHSMark), beginIndex: &rhsBeginIndex).stack
             
         )
     }
@@ -62,11 +63,10 @@ internal func process(lhs: Content, rhs: Content, lcs: Content) -> (lhs: Content
         return (lhs: lhsResult, rhs: rhsResult)
     }
     
-    let from = maxIndex + 1
     switch (lhsLength > rhsLength) {
     case true:
-        return (lhs: lhsResult + beginLHSMark + lhs.suffix(from: from) + endLHSMark, rhs: rhsResult)
+        return (lhs: lhsResult + beginLHSMark + lhs.suffix(from: maxCount) + endLHSMark, rhs: rhsResult)
     case false:
-        return (lhs: lhsResult, rhs: rhsResult + beginRHSMark + rhs.suffix(from: from) + endRHSMark)
+        return (lhs: lhsResult, rhs: rhsResult + beginRHSMark + rhs.suffix(from: maxCount) + endRHSMark)
     }
 }
