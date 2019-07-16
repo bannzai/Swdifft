@@ -49,16 +49,26 @@ internal func process(lhs: Content, rhs: Content, lcs: Content) -> (lhs: Content
         return result
     }
     
-    var lhsBeginIndex = 0
-    var rhsBeginIndex = 0
-    let (lhsResult, rhsResult) = lcs.reduce((lhsResult: "", rhsResult: "")) { (result, commonCharacter) in
-        return (
-            result.0 + extract(target: lhs, commonCharacter: commonCharacter, diffWords: (begin: beginLHSMark, end: endLHSMark), beginIndex: &lhsBeginIndex).stack,
-            result.1 + extract(target: rhs, commonCharacter: commonCharacter, diffWords: (begin: beginRHSMark, end: endRHSMark), beginIndex: &rhsBeginIndex).stack
+    func extractInBackground(closure: @escaping (Content) -> (), target: Content, diffWords: (begin: String, end: String)) {
+        var beginIndex = 0
+        DispatchQueue.global().async {
+            let r = lcs.reduce("") { (result, commonCharacter) in
+                return result + extract(target: target, commonCharacter: commonCharacter, diffWords: (begin: diffWords.begin, end: diffWords.end), beginIndex: &beginIndex).stack
+            }
             
-        )
+            closure(r)
+        }
     }
     
+    var lhsResult = ""
+    var rhsResult = ""
+    
+    extractInBackground(closure: { lhsResult = $0 }, target: lhs, diffWords: (begin: beginLHSMark, end: endLHSMark))
+    extractInBackground(closure: { rhsResult = $0 }, target: rhs, diffWords: (begin: beginRHSMark, end: endRHSMark))
+    
+    // Wait for background task.
+    while lhsResult.isEmpty || rhsResult.isEmpty { }
+
     if lhsLength == rhsLength {
         return (lhs: lhsResult, rhs: rhsResult)
     }
