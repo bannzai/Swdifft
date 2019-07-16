@@ -63,4 +63,21 @@ final class SwdifftTests: XCTestCase {
         })
     }
     
+    func testMeasureDiff() {
+        func randomString(_ length: Int) -> String {
+            let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+            return String((0..<length).map{ _ in letters.randomElement()! })
+        }
+
+        XCTContext.runActivity(named: "baseline 2.5 sec", block: { _ in
+            let length = 10000
+
+            let a = randomString(length)
+            let b = randomString(length)
+            measure {
+                _ = formatDiff(a, b)
+            }
+        })
+    }
+    
 }
