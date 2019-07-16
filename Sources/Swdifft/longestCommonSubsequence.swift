@@ -16,6 +16,7 @@ internal func longestCommonSubsequence(lhs: Content, rhs: Content) -> Content {
             if lhs[i] == rhs[j] {
                 storedStartIndex = j
                 lcs.append(rhs[storedStartIndex])
+                continue
             }
         }
     }
